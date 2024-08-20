@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <mutex>
 #include <queue>
 
@@ -47,5 +46,3 @@ public:
         return queue_.empty();
     }
 };
-
-//template class ConcurrentQueue<int>;
