@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <optional>
 #include <queue>
 
 template <typename T>
@@ -21,17 +22,18 @@ public:
         queue_.push(std::move(elem));
     }
 
-    bool try_pop(T& elem)
+    std::optional<T> try_pop()
     {
         std::scoped_lock lock(mutex_);
 
         if (queue_.empty())
         {
-            return false;
+            return std::nullopt;
         }
-        elem = std::move(queue_.front());
+
+        T elem = std::move(queue_.front());
         queue_.pop();
-        return true;
+        return elem;
     }
 
     inline int size() const

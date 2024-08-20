@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ConcurrentQueue.h"
+//#include "ThreadPool.h"
 
 class Test
 {
@@ -43,7 +44,7 @@ void test_no_unecessary_copies()
     cq.push(Test());
     std::cout << std::endl;
     Test test;
-    cq.try_pop(test);
+    auto res = cq.try_pop();
 }
 
 int main()
