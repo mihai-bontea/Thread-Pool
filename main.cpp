@@ -38,7 +38,7 @@ public:
     }
 };
 
-void test_no_unecessary_copies()
+void test_no_unnecessary_copies()
 {
     ConcurrentQueue<Test> cq;
     cq.push(Test());
@@ -49,6 +49,6 @@ void test_no_unecessary_copies()
 
 int main()
 {
-    test_no_unecessary_copies();
+    test_no_unnecessary_copies();
     return 0;
 }
