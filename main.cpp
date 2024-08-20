@@ -1,6 +1,6 @@
 #include <iostream>
-#include "ConcurrentQueue.h"
-//#include "ThreadPool.h"
+#include "ThreadPool.h"
+#include <chrono>
 
 class Test
 {
@@ -47,8 +47,24 @@ void test_no_unnecessary_copies()
     auto res = cq.try_pop();
 }
 
+void test_basic_pool()
+{
+    std::cout << std::thread::hardware_concurrency() << std::endl;
+    ThreadPool thp(5);
+
+    auto task1 = []() {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    };
+
+    for (int i = 0; i < 5; ++i)
+        thp.submit(task1);
+
+    thp.shutdown();
+}
+
 int main()
 {
     test_no_unnecessary_copies();
+    test_basic_pool();
     return 0;
 }
