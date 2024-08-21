@@ -54,11 +54,15 @@ void test_basic_pool()
 
     auto task1 = []() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
+        static std::atomic<int> counter = 0;
+        std::cout << "Finished work for task " << counter << ".\n";
+        counter++;
     };
 
     for (int i = 0; i < 5; ++i)
         thp.submit(task1);
 
+    std::this_thread::sleep_for(std::chrono::seconds(8));
     thp.shutdown();
 }
 
