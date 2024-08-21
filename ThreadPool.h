@@ -45,7 +45,7 @@ private:
     std::mutex cond_mutex_;
     std::condition_variable cond_lock_;
 public:
-    ThreadPool(unsigned nr_threads = std::max((int)std::thread::hardware_concurrency(), 4))
+    explicit ThreadPool(unsigned nr_threads = std::max((int)std::thread::hardware_concurrency(), 4))
         : threads_(std::vector<std::jthread>(nr_threads)), shutdown_(false){
 
         for (unsigned id = 0; id < nr_threads; ++id)
@@ -66,6 +66,10 @@ public:
     {
         shutdown_ = true;
         cond_lock_.notify_all();
+
+        // why do I still need this...?
+        for (auto & th : threads_)
+            th.join();
     }
 
     template<typename F, typename... Args>

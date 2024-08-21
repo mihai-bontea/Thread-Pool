@@ -62,7 +62,7 @@ void test_basic_pool()
     for (int i = 0; i < 5; ++i)
         thp.submit(task1);
 
-    std::this_thread::sleep_for(std::chrono::seconds(8));
+    std::this_thread::sleep_for(std::chrono::seconds(6));
     thp.shutdown();
 }
 
