@@ -66,9 +66,25 @@ void test_basic_pool()
     thp.shutdown();
 }
 
+void future_test()
+{
+    ThreadPool thp(4);
+
+    auto ret_reversed_string = [](std::string str){
+        std::reverse(str.begin(), str.end());
+        return str;
+    };
+
+    auto future = thp.submit(ret_reversed_string, "yes");
+    auto reversed = future.get();
+    std::cout << reversed << '\n';
+    thp.shutdown();
+}
+
 int main()
 {
     test_no_unnecessary_copies();
     test_basic_pool();
+    future_test();
     return 0;
 }

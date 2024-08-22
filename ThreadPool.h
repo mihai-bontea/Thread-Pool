@@ -27,8 +27,7 @@ private:
             {
                 {
                     std::unique_lock<std::mutex> lock(pool_.cond_mutex_);
-                    pool_.cond_lock_.wait(lock, [&] { return pool_.shutdown_ || !pool_.c_queue_.empty(); });
-
+                    pool_.cond_lock_.wait(lock, [&] { return !pool_.c_queue_.empty() || pool_.shutdown_; });
                     func = pool_.c_queue_.try_pop();
                 }
                 if (func)
@@ -67,21 +66,21 @@ public:
         shutdown_ = true;
         cond_lock_.notify_all();
 
-        // why do I still need this...?
+        // Why do I still need to do this if I'm using jthread?
         for (auto & th : threads_)
             th.join();
     }
 
-    template<typename F, typename... Args>
-    auto submit(F&& f, Args&&... args) -> std::future<std::invoke_result_t<std::decay_t<F>, std::decay_t<Args>...>>
-    {
-        using ReturnType = std::invoke_result_t<std::decay_t<F>, std::decay_t<Args>...>;
+    template<typename F, typename...Args>
+    auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))> {
+        std::function<decltype(f(args...))()> func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+        auto task_ptr = std::make_shared<std::packaged_task<decltype(f(args...))()>>(func);
 
-        auto task_ptr = std::make_shared<std::packaged_task<ReturnType()>>(
-                std::forward<F>(f), std::forward<Args>(args)...
-        );
+        auto wrapper = [task_ptr](){
+            (*task_ptr)();
+        };
 
-        c_queue_.push([task_ptr]() { (*task_ptr)(); });
+        c_queue_.push(wrapper);
         cond_lock_.notify_one();
 
         return task_ptr->get_future();
